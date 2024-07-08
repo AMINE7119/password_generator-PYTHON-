@@ -4,35 +4,24 @@ import random
 import string
 
 # Function to generate password
-def generate_password(min_length, numbers=True, special_characters=True):
+def generate_password(min_length, num_numbers, num_special_characters):
     letters = string.ascii_letters
     digits = string.digits
     special = string.punctuation
 
-    characters = letters
-    if numbers:
-        characters += digits
-    if special_characters:
-        characters += special
+    # Initialize password with random letters
+    pwd = ''.join(random.choice(letters) for _ in range(min_length - num_numbers - num_special_characters))
 
-    pwd = ""
-    meets_criteria = False
-    has_numbers = False
-    has_special = False
+    # Add specified number of random numbers
+    pwd += ''.join(random.choice(digits) for _ in range(num_numbers))
 
-    while not meets_criteria or len(pwd) < min_length:
-        new_char = random.choice(characters)
-        pwd += new_char
-        if new_char in digits:
-            has_numbers = True
-        elif new_char in special:
-            has_special = True
+    # Add specified number of random special characters
+    pwd += ''.join(random.choice(special) for _ in range(num_special_characters))
 
-        meets_criteria = True
-        if numbers:
-            meets_criteria = has_numbers
-        if special_characters:
-            meets_criteria = meets_criteria and has_special
+    # Shuffle the password to mix characters, numbers, and special characters
+    pwd_list = list(pwd)
+    random.shuffle(pwd_list)
+    pwd = ''.join(pwd_list)
 
     return pwd
 
@@ -40,32 +29,50 @@ def generate_password(min_length, numbers=True, special_characters=True):
 def on_generate():
     try:
         min_length = int(entry_min_length.get())
-        numbers = var_numbers.get() == 1
-        special_characters = var_special_characters.get() == 1
+        num_numbers = int(entry_num_numbers.get())
+        num_special_characters = int(entry_num_special_characters.get())
+        password_name = entry_password_name.get().strip()
 
-        password = generate_password(min_length, numbers, special_characters)
-        messagebox.showinfo("Generated Password", f"Your password is: {password}")
+        if not password_name:
+            messagebox.showerror("Input Error", "Please enter a name for the password")
+            return
+
+        password = generate_password(min_length, num_numbers, num_special_characters)
+        with open("passwords.txt", "a") as file:
+            file.write(f"{password_name}: {password}\n")
+
+        messagebox.showinfo("Generated Password", f"Your password '{password_name}' is: {password}")
     except ValueError:
-        messagebox.showerror("Input Error", "Please enter a valid number for the minimum length")
+        messagebox.showerror("Input Error", "Please enter valid numbers for the inputs")
 
 # Create the main application window
 root = tk.Tk()
 root.title("Password Generator")
 
 # Create and place widgets
+label_password_name = tk.Label(root, text="Enter the name for the password:")
+label_password_name.pack()
+
+entry_password_name = tk.Entry(root)
+entry_password_name.pack()
+
 label_min_length = tk.Label(root, text="Enter the minimum length of the password:")
 label_min_length.pack()
 
 entry_min_length = tk.Entry(root)
 entry_min_length.pack()
 
-var_numbers = tk.IntVar()
-check_numbers = tk.Checkbutton(root, text="Include numbers", variable=var_numbers)
-check_numbers.pack()
+label_num_numbers = tk.Label(root, text="Enter the number of numbers to include:")
+label_num_numbers.pack()
 
-var_special_characters = tk.IntVar()
-check_special_characters = tk.Checkbutton(root, text="Include special characters", variable=var_special_characters)
-check_special_characters.pack()
+entry_num_numbers = tk.Entry(root)
+entry_num_numbers.pack()
+
+label_num_special_characters = tk.Label(root, text="Enter the number of special characters to include:")
+label_num_special_characters.pack()
+
+entry_num_special_characters = tk.Entry(root)
+entry_num_special_characters.pack()
 
 button_generate = tk.Button(root, text="Generate Password", command=on_generate)
 button_generate.pack()
