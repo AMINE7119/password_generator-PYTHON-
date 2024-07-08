@@ -12,6 +12,9 @@ def generate_password(min_lenght, numbers=True,special_caracteres=True):
         characters+=digits
     if special_caracteres:
         characters+=special
+    pwd=""
+    meets_criteria=False
+    has_numbers=False
+    has_special=False
 
-    password=''.join(random.choice(characters) for i in range(min_lenght))
-    return password
+    while not meets_criteria or len(pwd)<min_lenght:
