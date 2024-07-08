@@ -18,3 +18,4 @@ def generate_password(min_lenght, numbers=True,special_caracteres=True):
     has_special=False
 
     while not meets_criteria or len(pwd)<min_lenght:
+amine
